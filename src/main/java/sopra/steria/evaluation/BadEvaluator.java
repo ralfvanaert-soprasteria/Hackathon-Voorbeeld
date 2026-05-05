@@ -97,7 +97,15 @@ public class BadEvaluator implements Evaluator {
 
         score += pstAndMaterial(board);
 
+        score += bishopPair(board);
+
         return board.isWhiteToMove() ? score : -score;
+    }
+
+    private int bishopPair(BBoard board) {
+        long whiteBishops = Long.bitCount(board.getBitboard(BPiece.whiteBishop));
+        long blackBishops = Long.bitCount(board.getBitboard(BPiece.blackBishop));
+        return (whiteBishops >= 2 ? 50 : 0) - (blackBishops >= 2 ? 50 : 0);
     }
 
     public int pstAndMaterial(BBoard board) {
@@ -113,7 +121,7 @@ public class BadEvaluator implements Evaluator {
             int mirroredSquare = BPiece.isWhite(piece) ? BBoardHelper.mirrorSquare(square) : square;
 
             score += BPiece.isWhite(piece) ? PIECE_VALUE[BPiece.getPieceType(piece)] : -PIECE_VALUE[BPiece.getPieceType(piece)];
-            score += PST[BPiece.getPieceType(piece)][mirroredSquare];
+            score += BPiece.isWhite(piece) ? PST[BPiece.getPieceType(piece)][mirroredSquare] : -PST[BPiece.getPieceType(piece)][square];
 
             allPiecesBoard = result.remaining;
         }
