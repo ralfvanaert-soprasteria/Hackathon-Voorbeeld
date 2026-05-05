@@ -7,6 +7,20 @@ import knight.clubbing.core.BPiece;
 
 public class BadMoveOrderer implements MoveOrderer {
 
+    private static final int[][] MVV_LVA = {
+            //  attacker: None, Pawn,  Knight, Bishop, Rook,  Queen, King,  7,     8
+            {      0,      0,      0,      0,      0,      0,      0}, // victim: None
+            {    900,    800,    600,    580,    400,      0,    900}, // victim: Pawn   (100)
+            {   3000,   2900,   2700,   2680,   2500,   2100,   3000}, // victim: Knight (300)
+            {   3200,   3100,   2900,   2880,   2700,   2300,   3200}, // victim: Bishop (320)
+            {   5000,   4900,   4700,   4680,   4500,   4100,   5000}, // victim: Rook   (500)
+            {   9000,   8900,   8700,   8680,   8500,   8100,   9000}, // victim: Queen  (900)
+            {      0,      0,      0,      0,      0,      0,      0}, // victim: King
+            {      0,      0,      0,      0,      0,      0,      0}, // victim: 7
+            {      0,      0,      0,      0,      0,      0,      0}, // victim: 8
+    };
+
+
     @Override
     public void orderMoves(BMove[] moves, BBoard board) {
         int[] scores = new int[moves.length];
@@ -22,16 +36,15 @@ public class BadMoveOrderer implements MoveOrderer {
         int score = 0;
 
         int movingPiece = board.getPieceBoards()[move.startSquare()];
+        int capturedPiece = board.getPieceBoards()[move.targetSquare()];
 
         int rank = BBoardHelper.rankIndex(move.startSquare());
+        int file = BBoardHelper.fileIndex(move.startSquare());
 
-        // Oooh me move knight!
-        if (BPiece.getPieceType(movingPiece) == BPiece.knight)
-            score += 500;
+        if (rank == 3 || file == 3 || rank == 4 || file == 4)
+            score += 300;
 
-        // Me want to move forward!
-        if (board.isWhiteToMove() && rank == 5 || !board.isWhiteToMove() && rank == 2)
-            score += 250;
+        score += MVV_LVA[BPiece.getPieceType(capturedPiece)][BPiece.getPieceType(movingPiece)];
 
         return score;
     }
